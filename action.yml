@@ -1,0 +1,30 @@
+name: "Shorten Name"
+
+inputs:
+  type:
+    description: "repo type, possibly use ref_type "
+    required: true
+  name:
+    description: "ref name, possibly use ref_name"
+    required: true
+  sha:
+    description: "repo hash"
+    required: true
+
+outputs:
+  shorten_name:
+    description: "processed shorten name"
+    value: ${{ steps.shorten.outputs.shorten_name }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Process Shorten Name
+      id: shorten
+      shell: bash
+      run: |-
+        if [ "${{ github.ref_type }}" = "branch" ]; then
+          echo "::set-output name=shorten_name::$(echo $GITHUB_SHA | cut -c 1-7 )"
+        elif [ "${{ github.ref_type }}" = "tag" ]; then
+          echo "::set-output name=shorten_name::$(echo $GITHUB_REF_NAME )"
+        fi
